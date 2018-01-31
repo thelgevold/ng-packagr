@@ -1,3 +1,4 @@
+import * as os from 'os';
 import * as path from 'path';
 import { NgEntryPoint } from './entry-point';
 import { DirectoryPath, SourceFilePath } from './shared';
@@ -34,15 +35,12 @@ import { DirectoryPath, SourceFilePath } from './shared';
  * @link https://docs.google.com/document/d/1CZC2rcpxffTDfRDs6p1cfbmKNLA6x5O-NtkJglDaBVs/edit#
  */
 export class NgPackage {
-
   constructor(
     private readonly basePath: string,
-
     /**
      * A reference to the primary entry point.
      */
     public readonly primary: NgEntryPoint,
-
     /**
      * An array of seconary entry points.
      */
@@ -61,7 +59,13 @@ export class NgPackage {
 
   /** Absolute path of the package's working directory (used for intermediate file storage). */
   public get workingDirectory(): DirectoryPath {
-    return this.absolutePathFromPrimary('workingDirectory');
+    let userWorkingDirectory: string = this.primary.$get('workingDirectory');
+    if (userWorkingDirectory) {
+      return this.absolutePathFromPrimary('workingDirectory');
+    } else {
+      // default to a os temporary directory
+      return path.resolve(os.tmpdir(), '.ng_pkg_build');
+    }
   }
 
   private absolutePathFromPrimary(key: string) {
@@ -69,8 +73,6 @@ export class NgPackage {
   }
 
   public entryPoint(moduleId: string): NgEntryPoint {
-    return [ this.primary, ...this.secondaries]
-      .find((entryPoint) => entryPoint.moduleId === moduleId);
+    return [this.primary, ...this.secondaries].find(entryPoint => entryPoint.moduleId === moduleId);
   }
-
 }

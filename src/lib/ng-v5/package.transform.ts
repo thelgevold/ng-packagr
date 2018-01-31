@@ -1,3 +1,4 @@
+import * as os from 'os';
 import * as path from 'path';
 import { Observable } from 'rxjs/Observable';
 import { concat as concatStatic } from 'rxjs/observable/concat';
@@ -43,8 +44,6 @@ export const packageTransformFactory = (project: string, entryPointTransform: Tr
       const ngPkg = graph.get(pkgUri);
 
       const entryPoints = [ngPkg.data.primary, ...ngPkg.data.secondaries].map(entryPoint => {
-        // TODO: use `os-tmpdir` instead -> https://www.npmjs.com/package/os-tmpdir
-        // import * as tmpdir from 'os-tempdir'; tmpdir();
         const stageDir = path.resolve(ngPkg.data.workingDirectory, entryPoint.flatModuleFile, 'stage');
         const outDir = path.resolve(ngPkg.data.workingDirectory, entryPoint.flatModuleFile, 'out');
 
